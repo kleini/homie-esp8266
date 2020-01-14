@@ -77,18 +77,20 @@ void BootNormal::setup() {
 #if ASYNC_TCP_SSL_ENABLED
   Interface::get().getLogger() << "SSL is: " << Interface::get().getConfig().get().mqtt.server.ssl.enabled << endl;
   Interface::get().getMqttClient().setSecure(Interface::get().getConfig().get().mqtt.server.ssl.enabled);
-  if (Interface::get().getConfig().get().mqtt.server.ssl.enabled){ // && Interface::get().getConfig().get().mqtt.server.ssl.hasFingerprint) {
+  if (Interface::get().getConfig().get().mqtt.server.ssl.enabled) {
 #if defined(ESP8266)
-    char hexBuf[MAX_FINGERPRINT_STRING_LENGTH];
-    Helpers::byteArrayToHexString(Interface::get().getConfig().get().mqtt.server.ssl.fingerprint, hexBuf, MAX_FINGERPRINT_SIZE);
-    Interface::get().getLogger() << "Using fingerprint: " << hexBuf << endl;
-    Interface::get().getMqttClient().addServerFingerprint((const uint8_t*)Interface::get().getConfig().get().mqtt.server.ssl.fingerprint);
+    if (Interface::get().getConfig().get().mqtt.server.ssl.hasFingerprint) {
+      char hexBuf[MAX_FINGERPRINT_STRING_LENGTH];
+      Helpers::byteArrayToHexString(Interface::get().getConfig().get().mqtt.server.ssl.fingerprint, hexBuf, MAX_FINGERPRINT_SIZE);
+      Interface::get().getLogger() << "Using fingerprint: " << hexBuf << endl;
+      Interface::get().getMqttClient().addServerFingerprint((const uint8_t*)Interface::get().getConfig().get().mqtt.server.ssl.fingerprint);
+    }
 #elif defined(ESP32)
     Interface::get().getMqttClient().setPsk(
       Interface::get().getConfig().get().mqtt.server.ssl.psk_ident,
       Interface::get().getConfig().get().mqtt.server.ssl.psk);
-  }
 #endif
+  }
 #endif
 
   Interface::get().getMqttClient().setMaxTopicLength(MAX_MQTT_TOPIC_LENGTH);
